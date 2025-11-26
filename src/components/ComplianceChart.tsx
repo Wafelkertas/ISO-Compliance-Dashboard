@@ -1,14 +1,7 @@
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import supabase from "../utils/supabase";
 import {
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
 
 export function ComplianceChart() {
@@ -19,7 +12,7 @@ export function ComplianceChart() {
     // 1. Load frameworks (ISO 27001, ISO 9001, etc.)
     // -------------------------------------------
     async function loadFrameworks() {
-        const { data } = await supabase.from("frameworks").select("*");
+        const {data} = await supabase.from("frameworks").select("*");
         setFrameworks(data || []);
     }
 
@@ -27,10 +20,10 @@ export function ComplianceChart() {
     // 2. Load monthly periods (checklist_periods)
     // -------------------------------------------
     async function loadComplianceTrend() {
-        const { data: periods } = await supabase
+        const {data: periods} = await supabase
             .from("checklist_periods")
             .select("*")
-            .order("start_date", { ascending: true });
+            .order("start_date", {ascending: true});
 
         if (!periods) return;
 
@@ -43,10 +36,7 @@ export function ComplianceChart() {
 
             // For each framework, compute compliance for this period
             for (const fw of frameworks) {
-                const compliance = await computeComplianceForFramework(
-                    fw.id,
-                    period.id
-                );
+                const compliance = await computeComplianceForFramework(fw.id, period.id);
 
                 row[fw.code] = compliance; // e.g., row["ISO 27001"] = 92
             }
@@ -62,15 +52,15 @@ export function ComplianceChart() {
     // -------------------------------------------
     async function computeComplianceForFramework(frameworkId: number, periodId: number) {
         // Total controls in this framework
-        const { count: totalControls } = await supabase
+        const {count: totalControls} = await supabase
             .from("controls")
-            .select("*", { count: "exact", head: true })
+            .select("*", {count: "exact", head: true})
             .eq("framework_id", frameworkId);
 
         // Compliant controls in this period
-        const { count: compliantControls } = await supabase
+        const {count: compliantControls} = await supabase
             .from("checklist_responses")
-            .select("*", { count: "exact", head: true })
+            .select("*", {count: "exact", head: true})
             .eq("framework_id", frameworkId)
             .eq("checklist_period_id", periodId)
             .eq("status", "compliant");
@@ -83,7 +73,7 @@ export function ComplianceChart() {
     // Format "2025-10-01" -> "Oct"
     // -------------------------------------------
     function formatMonth(dateString: string) {
-        return new Date(dateString).toLocaleString("en-US", { month: "short" });
+        return new Date(dateString).toLocaleString("en-US", {month: "short"});
     }
 
     // -------------------------------------------
@@ -93,6 +83,7 @@ export function ComplianceChart() {
         async function load() {
             await loadFrameworks();
         }
+
         load();
     }, []);
 
@@ -112,35 +103,31 @@ export function ComplianceChart() {
         "ISO 45001": "#8b5cf6", // purple
     };
 
-    return (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+    return (<div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Compliance Trend
             </h2>
 
             <ResponsiveContainer width="100%" height={320}>
                 <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="month" stroke="#6b7280" />
-                    <YAxis domain={[0, 100]} stroke="#6b7280" />
-                    <Tooltip formatter={(value) => `${value}%`} />
-                    <Legend />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb"/>
+                    <XAxis dataKey="month" stroke="#6b7280"/>
+                    <YAxis domain={[0, 100]} stroke="#6b7280"/>
+                    <Tooltip formatter={(value) => `${value}%`}/>
+                    <Legend/>
 
                     {/* Generate one line per framework dynamically */}
-                    {frameworks.map((fw) => (
-                        <Line
+                    {frameworks.map((fw) => (<Line
                             key={fw.code}
                             type="monotone"
                             dataKey={fw.code}
                             stroke={frameworkColors[fw.code] || "#000"}
                             strokeWidth={2}
-                            dot={{ r: 5 }}
-                            activeDot={{ r: 7 }}
+                            dot={{r: 5}}
+                            activeDot={{r: 7}}
                             name={fw.code}
-                        />
-                    ))}
+                        />))}
                 </LineChart>
             </ResponsiveContainer>
-        </div>
-    );
+        </div>);
 }

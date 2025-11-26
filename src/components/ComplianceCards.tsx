@@ -1,5 +1,5 @@
-import { Lock } from "lucide-react";
-import { useEffect, useState } from "react";
+import {Lock} from "lucide-react";
+import {useEffect, useState} from "react";
 import supabase from "../utils/supabase";
 
 export function ComplianceCards() {
@@ -8,11 +8,11 @@ export function ComplianceCards() {
 
     // Load active period
     async function loadActivePeriod() {
-        const { data } = await supabase
+        const {data} = await supabase
             .from("checklist_periods")
             .select("*")
             .eq("is_closed", false)
-            .order("start_date", { ascending: false })
+            .order("start_date", {ascending: false})
             .limit(1)
             .single();
 
@@ -26,7 +26,7 @@ export function ComplianceCards() {
         if (!activePeriodId) return;
 
         // Get all standards (frameworks)
-        const { data: frameworks } = await supabase
+        const {data: frameworks} = await supabase
             .from("frameworks")
             .select("*");
 
@@ -36,23 +36,20 @@ export function ComplianceCards() {
 
         for (const fw of frameworks) {
             // Count total controls under this framework
-            const { count: totalControls } = await supabase
+            const {count: totalControls} = await supabase
                 .from("controls")
-                .select("*", { count: "exact", head: true })
+                .select("*", {count: "exact", head: true})
                 .eq("framework_id", fw.id);
 
             // Count compliant responses within this period
-            const { count: compliantControls } = await supabase
+            const {count: compliantControls} = await supabase
                 .from("checklist_responses")
-                .select("*", { count: "exact", head: true })
+                .select("*", {count: "exact", head: true})
                 .eq("framework_id", fw.id)
                 .eq("checklist_period_id", activePeriodId)
                 .eq("status", "compliant");
 
-            const compliance =
-                totalControls && compliantControls
-                    ? Math.round((compliantControls / totalControls) * 100)
-                    : 0;
+            const compliance = totalControls && compliantControls ? Math.round((compliantControls / totalControls) * 100) : 0;
 
             // Determine status color
             let status = "Needs Review";
@@ -67,12 +64,7 @@ export function ComplianceCards() {
             }
 
             results.push({
-                id: fw.code,
-                name: fw.name,
-                compliance,
-                status,
-                icon: Lock,
-                nextAudit: "2025-04-20", // Replace with real audit table later
+                id: fw.code, name: fw.name, compliance, status, icon: Lock, nextAudit: "2025-04-20", // Replace with real audit table later
                 color,
             });
         }
@@ -110,23 +102,19 @@ export function ComplianceCards() {
         return "bg-red-500";
     };
 
-    return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    return (<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
             {/* Loading indicator */}
-            {standards.length === 0 && (
-                <p className="text-gray-500">Loading compliance data…</p>
-            )}
+            {standards.length === 0 && (<p className="text-gray-500">Loading compliance data…</p>)}
 
             {standards.map((standard) => {
                 const Icon = standard.icon;
 
-                return (
-                    <div key={standard.id} className="bg-white rounded-lg border border-gray-200 p-6">
+                return (<div key={standard.id} className="bg-white rounded-lg border border-gray-200 p-6">
                         <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-3">
                                 <div className="bg-blue-50 text-blue-600 p-2 rounded-lg">
-                                    <Icon className="w-5 h-5" />
+                                    <Icon className="w-5 h-5"/>
                                 </div>
                                 <div>
                                     <h3 className="text-gray-900">{standard.id}</h3>
@@ -144,7 +132,7 @@ export function ComplianceCards() {
                             <div className="w-full bg-gray-200 rounded-full h-2">
                                 <div
                                     className={`h-2 rounded-full ${getProgressColor(standard.compliance)}`}
-                                    style={{ width: `${standard.compliance}%` }}
+                                    style={{width: `${standard.compliance}%`}}
                                 />
                             </div>
                         </div>
@@ -158,9 +146,7 @@ export function ComplianceCards() {
                 Next: {new Date(standard.nextAudit).toLocaleDateString()}
               </span>
                         </div>
-                    </div>
-                );
+                    </div>);
             })}
-        </div>
-    );
+        </div>);
 }

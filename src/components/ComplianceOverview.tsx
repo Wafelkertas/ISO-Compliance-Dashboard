@@ -1,5 +1,5 @@
-import { CheckCircle, AlertTriangle, Clock, TrendingUp } from "lucide-react";
-import { useEffect, useState } from "react";
+import {CheckCircle, AlertTriangle, Clock, TrendingUp} from "lucide-react";
+import {useEffect, useState} from "react";
 import supabase from "../utils/supabase";
 
 export function ComplianceOverview() {
@@ -13,11 +13,11 @@ export function ComplianceOverview() {
     // Fetch ACTIVE period (latest non-closed)
     // ----------------------------------------
     async function getActivePeriodId() {
-        const { data, error } = await supabase
+        const {data, error} = await supabase
             .from("checklist_periods")
             .select("*")
             .eq("is_closed", false)
-            .order("start_date", { ascending: false })
+            .order("start_date", {ascending: false})
             .limit(1)
             .single();
 
@@ -29,14 +29,14 @@ export function ComplianceOverview() {
     // KPI: Overall Compliance
     // ----------------------------------------
     async function getOverallCompliance(activePeriodId: number) {
-        const { count: total } = await supabase
+        const {count: total} = await supabase
             .from("checklist_responses")
-            .select("*", { count: "exact", head: true })
+            .select("*", {count: "exact", head: true})
             .eq("checklist_period_id", activePeriodId);
 
-        const { count: compliant } = await supabase
+        const {count: compliant} = await supabase
             .from("checklist_responses")
-            .select("*", { count: "exact", head: true })
+            .select("*", {count: "exact", head: true})
             .eq("checklist_period_id", activePeriodId)
             .eq("status", "compliant");
 
@@ -51,7 +51,7 @@ export function ComplianceOverview() {
     // KPI: Active Standards
     // ----------------------------------------
     async function getActiveStandards() {
-        const { data, error } = await supabase.from("frameworks").select("id");
+        const {data, error} = await supabase.from("frameworks").select("id");
 
         setActiveStandards(error ? 0 : data.length);
     }
@@ -60,9 +60,9 @@ export function ComplianceOverview() {
     // KPI: Pending Actions (status != closed)
     // ----------------------------------------
     async function getPendingActions(activePeriodId: number) {
-        const { count } = await supabase
+        const {count} = await supabase
             .from("checklist_responses")
-            .select("*", { count: "exact", head: true })
+            .select("*", {count: "exact", head: true})
             .eq("checklist_period_id", activePeriodId)
             .neq("status", "compliant");
 
@@ -73,9 +73,9 @@ export function ComplianceOverview() {
     // KPI: Non-Conformities
     // ----------------------------------------
     async function getNonConformities(activePeriodId: number) {
-        const { count } = await supabase
+        const {count} = await supabase
             .from("checklist_responses")
-            .select("*", { count: "exact", head: true })
+            .select("*", {count: "exact", head: true})
             .eq("checklist_period_id", activePeriodId)
             .eq("status", "non_conformity");
 
@@ -95,12 +95,7 @@ export function ComplianceOverview() {
                 return;
             }
 
-            await Promise.all([
-                getOverallCompliance(periodId),
-                getActiveStandards(),
-                getPendingActions(periodId),
-                getNonConformities(periodId),
-            ]);
+            await Promise.all([getOverallCompliance(periodId), getActiveStandards(), getPendingActions(periodId), getNonConformities(periodId),]);
 
             setLoading(false);
         }
@@ -115,55 +110,46 @@ export function ComplianceOverview() {
         return <p className="text-gray-500">Loading compliance data...</p>;
     }
 
-    const stats = [
-        {
-            label: "Kepatuhan Keseluruhan",
-            value: overallCompliance !== null ? `${overallCompliance}%` : "0%",
-            icon: CheckCircle,
-            color: "text-green-600",
-            bgColor: "bg-green-50",
-        },
-        {
-            label: "Standar Aktif",
-            value: activeStandards ?? "0",
-            icon: TrendingUp,
-            color: "text-blue-600",
-            bgColor: "bg-blue-50",
-        },
-        {
-            label: "Tindakan Tertunda",
-            value: pendingActions ?? "0",
-            icon: Clock,
-            color: "text-yellow-600",
-            bgColor: "bg-yellow-50",
-        },
-        {
-            label: "Ketidaksesuaian",
-            value: nonConformities ?? "0",
-            icon: AlertTriangle,
-            color: "text-red-600",
-            bgColor: "bg-red-50",
-        },
-    ];
+    const stats = [{
+        label: "Kepatuhan Keseluruhan",
+        value: overallCompliance !== null ? `${overallCompliance}%` : "0%",
+        icon: CheckCircle,
+        color: "text-green-600",
+        bgColor: "bg-green-50",
+    }, {
+        label: "Standar Aktif",
+        value: activeStandards ?? "0",
+        icon: TrendingUp,
+        color: "text-blue-600",
+        bgColor: "bg-blue-50",
+    }, {
+        label: "Tindakan Tertunda",
+        value: pendingActions ?? "0",
+        icon: Clock,
+        color: "text-yellow-600",
+        bgColor: "bg-yellow-50",
+    }, {
+        label: "Ketidaksesuaian",
+        value: nonConformities ?? "0",
+        icon: AlertTriangle,
+        color: "text-red-600",
+        bgColor: "bg-red-50",
+    },];
 
-    return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    return (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {stats.map((stat) => {
                 const Icon = stat.icon;
-                return (
-                    <div key={stat.label} className="bg-white rounded-lg border border-gray-200 p-6">
+                return (<div key={stat.label} className="bg-white rounded-lg border border-gray-200 p-6">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-gray-600">{stat.label}</p>
                                 <p className="text-gray-900 mt-2 text-xl font-semibold">{stat.value}</p>
                             </div>
                             <div className={`${stat.bgColor} ${stat.color} p-3 rounded-lg`}>
-                                <Icon className="w-6 h-6" />
+                                <Icon className="w-6 h-6"/>
                             </div>
                         </div>
-                    </div>
-                );
+                    </div>);
             })}
-        </div>
-    );
+        </div>);
 }

@@ -1,4 +1,5 @@
 /*! tailwindcss v4.1.3 | MIT License | https://tailwindcss.com */
+@import "tailwindcss";
 @layer properties {
   @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
     *, :before, :after, ::backdrop {
@@ -903,3 +904,12 @@ html {
   inherits: false;
   initial-value: solid;
 }
+
+.btn-reset {
+    all: unset;              /* removes Tailwind reset */
+    display: inline-flex;    /* makes the button behave correctly */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
